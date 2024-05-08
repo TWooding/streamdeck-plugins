@@ -1,0 +1,26 @@
+{
+  "devDependencies": {
+    "@elgato/cli": "^0.3.0",
+    "@rollup/plugin-commonjs": "^25.0.5",
+    "@rollup/plugin-node-resolve": "^15.2.2",
+    "@rollup/plugin-typescript": "^11.1.5",
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "^20.12.8",
+    "rollup": "^4.17.2",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "rollup-plugin-node-externals": "^7.1.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.twooding.github-streamdeck-wallpaper-engine-plugin\"",
+    "dist": "streamdeck bundle -f com.twooding.github-streamdeck-wallpaper-engine-plugin.sdPlugin"
+  },
+  "type": "module",
+  "dependencies": {
+    "@elgato/streamdeck": "0.4.0-beta.1",
+    "getsteamfolders": "^1.0.5"
+  }
+}
