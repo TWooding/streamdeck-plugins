@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name=viewport
+		content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
+	<title>Wallpaper Engine Streamdeck Plugin</title>
+	<link rel="stylesheet" href="css/sdpi.css">
+
+
+</head>
+
+<body>
+	<div class="sdpi-wrapper">
+		<!-- Perform action widget -->
+		<div class="sdpi-item" id="actionWidget">
+			<div class="sdpi-item-label">Action</div>
+			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'action')"
+				id="actionSelector">
+				<option value="play" selected>Play Wallpaper</option>
+				<option value="pause">Pause Wallpaper</option>
+				<option value="stop">Stop Wallpaper</option>
+				<option value="mute">Mute Wallpaper Audio</option>
+				<option value="unmute">Unmute Wallpaper Audio</option>
+				<option value="hideIcons">Hide Desktop Icons</option>
+				<option value="showIcons">Show Desktop Icons</option>
+			</select>
+		</div>
+
+		<!-- Set Wallpaper Widget -->
+		<div class="sdpi-item" id="setWallpaperWidget">
+			<div class="sdpi-item-label">Set wallpaper</div>
+			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'selected_wallpaper')"
+				id="setWallpaperActionSelector">
+
+			</select>
+		</div>
+	</div>
+
+
+
+	<script>
+		// Action Widget fields
+		const action_selector_widget = document.getElementById("actionWidget");
+		const action_selector_el = document.getElementById("actionSelector");
+		action_selector_widget.style.display = 'none'
+
+		// Wallpaper set action Widget fields
+		const set_wallpaper_action_selector_widget = document.getElementById("setWallpaperWidget");
+		const set_wallpaper_action_selector_el = document.getElementById("setWallpaperActionSelector");
+		set_wallpaper_action_selector_widget.style.display = 'none'
+
+		// this is our global websocket, used to communicate from/to Stream Deck software
+		// and some info about our plugin, as sent by Stream Deck software
+		var websocket = null,
+			uuid = null,
+			actionInfo = {};
+
+
+		// Extracts payload from actions
+		function extractActionPayload(jsonData) {
+			// Use destructuring to access payload and settings
+			const { payload } = jsonData;
+			const data = typeof payload === 'string' ? payload : payload?.settings
+			return data;
+		}
+
+		// The streamdeck calls this function to connect to the Inspector
+		function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
+			uuid = inUUID;
+			// please note: the incoming arguments are of type STRING, so
+			// in case of the inActionInfo, we must parse it into JSON first
+			actionInfo = JSON.parse(inActionInfo); // cache the info
+			websocket = new WebSocket('ws://localhost:' + inPort);
+
+			// if connection was established, the websocket sends
+			// an 'onopen' event, where we need to register our PI
+			websocket.onopen = function () {
+				var json = {
+					event: inRegisterEvent,
+					uuid: inUUID
+				};
+				// registers property inspector to Stream Deck
+				websocket.send(JSON.stringify(json));
+			}
+
+			websocket.onmessage = function (evt) {
+
+				const json_data = JSON.parse(evt.data);
+
+				if (json_data.payload) {
+					// Use the extracted function to get the action
+					const data = extractActionPayload(json_data);
+					switch (data?.widget_type) {
+						case 'PerformAction':
+							action_selector_el.value = data.action;
+							action_selector_widget.style.display = null
+							break;
+							
+						case 'SetWallpaperAction':
+							set_wallpaper_action_selector_widget.style.display = null
+							data?.wallpapers.forEach(wallpaper => {
+								const option = document.createElement("option");
+								option.text = wallpaper;
+								set_wallpaper_action_selector_el.add(option);
+							});
+							set_wallpaper_action_selector_el.value = data.selected_wallpaper;
+							break;
+						default:
+							break;
+					}
+
+
+				}
+			};
+		}
+
+		// our method to pass values to the plugin
+		function sendValueToPlugin(value, param) {
+			if (websocket) {
+				const json = {
+					"action": actionInfo['action'],
+					"event": "sendToPlugin",
+					"context": uuid,
+					"payload": {
+						[param]: value
+					}
+				};
+				websocket.send(JSON.stringify(json));
+			}
+		}
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,60 @@
+{
+	"Name": "Wallpaper Engine Plugin",
+	"Version": "0.1.0.0",
+	"Author": "TWooding",
+	"PropertyInspectorPath": "index.html",
+	"Actions": [
+		{
+			"Name": "Perform Action",
+			"UUID": "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-perform-action",
+			"Icon": "imgs/wallpaperEngineIcon",
+			"Tooltip": "Communicates with Wallpaper Engine via the CLI to peform an Action",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/wallpaperEngineIcon",
+					"TitleAlignment": "middle"
+				}
+			],
+			"DisableAutomaticStates": false
+		},
+		{
+			"Name": "Set Wallpaper",
+			"UUID": "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-set-wallpaper",
+			"Icon": "imgs/wallpaperEngineIcon",
+			"Tooltip": "Communicates with Wallpaper Engine via the CLI to set the wallpaper",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/wallpaperEngineIcon",
+					"TitleAlignment": "middle"
+				}
+			],
+			"DisableAutomaticStates": false
+		}
+	],
+	"Category": "Wallpaper Engine Plugin",
+	"CategoryIcon": "imgs/wallpaperEngineIcon",
+	"CodePath": "bin/plugin.js",
+	"Description": "A Streamdeck plugin to control Wallpaper Engine from the CLI",
+	"Icon": "imgs/wallpaperEngineIcon",
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.5"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.twooding.github-streamdeck-wallpaper-engine-plugin"
+}
