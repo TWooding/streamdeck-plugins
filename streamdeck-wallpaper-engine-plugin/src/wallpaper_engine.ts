@@ -31,10 +31,14 @@ export class WallpaperEngine {
 					reject(new Error("Error executing command: " + error.message));
 				} else {
 					// Process the stdout to find the executable path
-					const output = stdout.toLowerCase().split(' ')[0].trim();
-					if (output.length >= 1) {
-						// If the output is valid, resolve the Promise with the executable path
-						getSteamMainLocation().then((loc) => {
+					let output = stdout.toLowerCase().split(' ')[0].trim();
+
+					if (!output.includes('wallpaper')) {
+						output = ''
+					}
+					// If the output is valid, resolve the Promise with the executable path
+					getSteamMainLocation().then((loc) => {
+						if (output.length > 1) {
 							if (loc) {
 								result = join(`${loc}/steamapps/common/wallpaper_engine`, output);
 								resolve(result)
@@ -42,8 +46,11 @@ export class WallpaperEngine {
 								reject(new Error("Cannot find wallpaper engine executable"));
 
 							}
-						})
-					}
+						} else {
+							reject(new Error("Cannot find wallpaper engine executable"));
+						}
+					})
+
 				}
 			});
 
@@ -51,11 +58,11 @@ export class WallpaperEngine {
 	}
 
 	public async get_wallpapers(): Promise<string[]> {
-	
+
 		return new Promise<string[]>((resolve, reject) => {
 			let paths: string[];
 			let wallpapers: string[] = [];
-	
+
 			getSteamMainLocation().then((loc) => {
 				if (loc) {
 					// Wallpaper Paths
@@ -63,13 +70,13 @@ export class WallpaperEngine {
 
 					// Parse Wallpapers
 					paths.forEach(p => {
-						const files = readdirSync(p) 
-							files.forEach(file => {
-								wallpapers.push(join(p,file))
-							
+						const files = readdirSync(p)
+						files.forEach(file => {
+							wallpapers.push(join(p, file))
+
 						});
-					});	
-				} 
+					});
+				}
 			})
 			resolve(wallpapers)
 		})
