@@ -1,6 +1,6 @@
 {
 	"Name": "Wallpaper Engine Plugin",
-	"Version": "0.1.0.0",
+	"Version": "0.1.0.1",
 	"Author": "TWooding",
 	"PropertyInspectorPath": "index.html",
 	"Actions": [
@@ -13,6 +13,26 @@
 				"Keypad"
 			],
 			"States": [
+				{
+					"Image": "imgs/wallpaperEngineIcon",
+					"TitleAlignment": "middle"
+				}
+			],
+			"DisableAutomaticStates": false
+		},
+		{
+			"Name": "Perform Toggle Action",
+			"UUID": "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-perform-toggle-action",
+			"Icon": "imgs/wallpaperEngineIcon",
+			"Tooltip": "Communicates with Wallpaper Engine via the CLI to peform an Toggle Action",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/wallpaperEngineIcon",
+					"TitleAlignment": "middle"
+				},
 				{
 					"Image": "imgs/wallpaperEngineIcon",
 					"TitleAlignment": "middle"
