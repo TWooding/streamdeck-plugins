@@ -23,6 +23,7 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 	async onDidReceiveSettings(ev: DidReceiveSettingsEvent<WallpaperSetActionSettings>): Promise<void> {
 		const settings = ev.payload.settings
 		settings.widget_type = settings.widget_type ? settings.widget_type : 'SetWallpaperAction'
+		settings.selected_monitor = settings.selected_monitor ? settings.selected_monitor : '0'
 		await this.wallpaper_engine.get_wallpapers().then(wallpapers => {
 			settings.wallpapers = wallpapers
 
@@ -34,7 +35,7 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 	async onKeyDown(ev: KeyDownEvent<WallpaperSetActionSettings>): Promise<void> {
 		this.wallpaper_engine.get_process()
 			.then(result => {
-				exec(`"${result}" -control openWallpaper -file "${ev.payload.settings.selected_wallpaper}/project.json"`, (error, stdout, stderr) => {
+				exec(`"${result}" -control openWallpaper -monitor ${ev.payload.settings.selected_monitor} -file "${ev.payload.settings.selected_wallpaper}/project.json"`, (error, stdout, stderr) => {
 					if (error) {
 						streamDeck.logger.error(error.message);
 						ev.action.showAlert();
@@ -53,5 +54,6 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 type WallpaperSetActionSettings = {
 	widget_type: string
 	selected_wallpaper: string
+	selected_monitor: string
 	wallpapers: string[]
 };

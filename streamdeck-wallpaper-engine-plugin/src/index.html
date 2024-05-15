@@ -13,7 +13,7 @@
 
 <body>
 	<div class="sdpi-wrapper">
-		<!-- Perform action widget -->
+		<!-- Perform Action Widget -->
 		<div class="sdpi-item" id="actionWidget">
 			<div class="sdpi-item-label">Action</div>
 			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'action')"
@@ -28,11 +28,30 @@
 			</select>
 		</div>
 
+		<!-- Toggle Action Widget -->
+		<div class="sdpi-item" id="toggleActionWidget">
+			<div class="sdpi-item-label">Toggle Action</div>
+			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'action')"
+				id="toggleActionSelector">
+				<option value="muteUnmute" selected>Mute / Unmute Wallpaper</option>
+				<option value="playStop">Play / Stop Wallpaper</option>
+			</select>
+		</div>
+
 		<!-- Set Wallpaper Widget -->
 		<div class="sdpi-item" id="setWallpaperWidget">
 			<div class="sdpi-item-label">Set wallpaper</div>
-			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'selected_wallpaper')"
-				id="setWallpaperActionSelector">
+			<select class="sdpi-item-value select"
+				onchange="sendValueToPlugin(event.target.value, 'selected_wallpaper')" id="setWallpaperActionSelector">
+
+			</select>
+		</div>
+
+		<!-- Monitor selector -->
+		<div class="sdpi-item" id="monitorSelector">
+			<div class="sdpi-item-label">Monitor</div>
+			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'action')"
+				id="monitorChooser">
 
 			</select>
 		</div>
@@ -41,15 +60,24 @@
 
 
 	<script>
+		// Monitor Selection Element
+		const monitor_selector_el = document.getElementById("monitorSelector");
+		monitor_selector_el.style.display = 'none'
+
 		// Action Widget fields
 		const action_selector_widget = document.getElementById("actionWidget");
 		const action_selector_el = document.getElementById("actionSelector");
 		action_selector_widget.style.display = 'none'
 
-		// Wallpaper set action Widget fields
+		// Set wallpaper Action Widget fields
 		const set_wallpaper_action_selector_widget = document.getElementById("setWallpaperWidget");
 		const set_wallpaper_action_selector_el = document.getElementById("setWallpaperActionSelector");
 		set_wallpaper_action_selector_widget.style.display = 'none'
+
+		// Toggle Action Widget fields
+		const toggle_action_selector_widget = document.getElementById("toggleActionWidget");
+		const toggle_action_selector_el = document.getElementById("toggleActionSelector");
+		toggle_action_selector_widget.style.display = 'none'
 
 		// this is our global websocket, used to communicate from/to Stream Deck software
 		// and some info about our plugin, as sent by Stream Deck software
@@ -98,8 +126,17 @@
 							action_selector_widget.style.display = null
 							break;
 							
+						case 'PerformToggleAction':
+							toggle_action_selector_el.value = data.action;
+							toggle_action_selector_widget.style.display = null
+							break;
+
 						case 'SetWallpaperAction':
+							// Show hidden elements
 							set_wallpaper_action_selector_widget.style.display = null
+							monitor_selector_el.style.display = null
+
+							// Populate list with available wallpapers to choose from
 							data?.wallpapers.forEach(wallpaper => {
 								const option = document.createElement("option");
 								option.text = wallpaper;
