@@ -1,12 +1,11 @@
 import { WallpaperEngine } from "../wallpaper_engine";
-import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, JsonValue, SendToPluginEvent, action, State } from "@elgato/streamdeck";
+import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, JsonValue, SendToPluginEvent, action } from "@elgato/streamdeck";
 import { exec, } from "child_process";
 
 @action({ UUID: "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-perform-toggle-action", })
 export class WallpaperToggleAction extends SingletonAction<WallpaperToggleActionSettings> {
 
 	wallpaper_engine: WallpaperEngine = new WallpaperEngine()
-
 	async onSendToPlugin(ev: SendToPluginEvent<JsonValue, WallpaperToggleActionSettings>): Promise<void> {
 
 		if (ev.payload) {
@@ -19,19 +18,15 @@ export class WallpaperToggleAction extends SingletonAction<WallpaperToggleAction
 		ev.action.sendToPropertyInspector((await ev.action.getSettings()))
 	}
 
-
 	async onDidReceiveSettings(ev: DidReceiveSettingsEvent<WallpaperToggleActionSettings>): Promise<void> {
 		const settings = ev.payload.settings
 		settings.widget_type = settings.widget_type ? settings.widget_type : 'PerformToggleAction'
 		settings.action = settings.action ? settings.action : 'muteUnmute'
-		settings.toggled = settings.toggled ? settings.toggled : ev.payload.state as State
 		ev.action.setSettings(settings)
 	}
 
-
 	async onKeyDown(ev: KeyDownEvent<WallpaperToggleActionSettings>): Promise<void> {
 		let action = ''
-
 		this.wallpaper_engine.get_process()
 			.then(result => {
 
@@ -55,14 +50,18 @@ export class WallpaperToggleAction extends SingletonAction<WallpaperToggleAction
 
 				exec(`"${result}" -control ${action}`, (error, stdout, stderr) => {
 					if (error) {
-						streamDeck.logger.error(error.message);
 						ev.action.setState(0)
-					} 
+						streamDeck.logger.error(error.message);
+					}
+
 				});
 			}, error => {
+				ev.action.setState(0)
 				streamDeck.logger.error(error.message);
 			})
+
 	}
+
 }
 
 /**
@@ -70,6 +69,5 @@ export class WallpaperToggleAction extends SingletonAction<WallpaperToggleAction
  */
 type WallpaperToggleActionSettings = {
 	widget_type: string
-	toggled: State
 	action: string
 };
