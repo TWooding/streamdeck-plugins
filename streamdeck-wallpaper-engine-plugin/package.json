@@ -16,7 +16,8 @@
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.twooding.github-streamdeck-wallpaper-engine-plugin\"",
-    "dist": "streamdeck bundle -f com.twooding.github-streamdeck-wallpaper-engine-plugin.sdPlugin"
+    "dist": "rollup -c && streamdeck bundle -f com.twooding.github-streamdeck-wallpaper-engine-plugin.sdPlugin",
+    "clean": "rm -r *.sdPlugin || rm *.streamDeckPlugin"
   },
   "type": "module",
   "dependencies": {
