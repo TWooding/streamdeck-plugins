@@ -43,6 +43,9 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 						ev.action.showOk();
 					}
 				});
+			}, error => {
+				streamDeck.logger.error(error.message);
+				ev.action.showAlert();
 			});
 
 	}
