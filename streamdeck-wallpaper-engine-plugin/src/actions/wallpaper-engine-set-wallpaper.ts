@@ -1,5 +1,5 @@
 import { WallpaperEngine } from "../wallpaper_engine";
-import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, JsonValue, SendToPluginEvent, action } from "@elgato/streamdeck";
+import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, SendToPluginEvent, action } from "@elgato/streamdeck";
 import { exec, } from "child_process";
 
 @action({ UUID: "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-set-wallpaper", })
@@ -7,7 +7,7 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 
 	wallpaper_engine: WallpaperEngine = new WallpaperEngine()
 
-	async onSendToPlugin(ev: SendToPluginEvent<JsonValue, WallpaperSetActionSettings>): Promise<void> {
+	async onSendToPlugin(ev: SendToPluginEvent<Object, WallpaperSetActionSettings>): Promise<void> {
 
 		if (ev.payload) {
 			const settings = ev.payload as WallpaperSetActionSettings
@@ -23,12 +23,19 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 	async onDidReceiveSettings(ev: DidReceiveSettingsEvent<WallpaperSetActionSettings>): Promise<void> {
 		const settings = ev.payload.settings
 		settings.widget_type = settings.widget_type ? settings.widget_type : 'SetWallpaperAction'
-		settings.selected_monitor = settings.selected_monitor ? settings.selected_monitor : '0'
 		await this.wallpaper_engine.get_wallpapers().then(wallpapers => {
 			settings.wallpapers = wallpapers
 
 		})
+		await this.wallpaper_engine.get_monitors().then(monitors => {
+			settings.monitors = monitors
+
+		})
+		
+		settings.selected_monitor = settings.selected_monitor ? settings.selected_monitor : settings.monitors[0]
+		settings.selected_monitor_index = settings.selected_monitor_index ? settings.selected_monitor_index : settings.monitors.indexOf(settings.selected_monitor)
 		settings.selected_wallpaper = settings.selected_wallpaper ? settings.selected_wallpaper : settings.wallpapers[0]
+
 		ev.action.setSettings(settings)
 	}
 
@@ -58,5 +65,7 @@ type WallpaperSetActionSettings = {
 	widget_type: string
 	selected_wallpaper: string
 	selected_monitor: string
+	selected_monitor_index: number
 	wallpapers: string[]
+	monitors: Array<string>
 };

@@ -40,7 +40,7 @@
 
 		<!-- Set Wallpaper Widget -->
 		<div class="sdpi-item" id="setWallpaperWidget">
-			<div class="sdpi-item-label">Set wallpaper</div>
+			<div class="sdpi-item-label">Wallpaper</div>
 			<select class="sdpi-item-value select"
 				onchange="sendValueToPlugin(event.target.value, 'selected_wallpaper')" id="setWallpaperActionSelector">
 
@@ -48,10 +48,10 @@
 		</div>
 
 		<!-- Monitor selector -->
-		<div class="sdpi-item" id="monitorSelector">
+		<div class="sdpi-item" id="monitorSelectWidget">
 			<div class="sdpi-item-label">Monitor</div>
-			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'action')"
-				id="monitorChooser">
+			<select class="sdpi-item-value select" onchange="sendValueToPlugin(event.target.value, 'selected_monitor')"
+				id="monitorSelector">
 
 			</select>
 		</div>
@@ -61,8 +61,9 @@
 
 	<script>
 		// Monitor Selection Element
+		const monitor_selector_widget = document.getElementById("monitorSelectWidget");
 		const monitor_selector_el = document.getElementById("monitorSelector");
-		monitor_selector_el.style.display = 'none'
+		monitor_selector_widget.style.display = 'none'
 
 		// Action Widget fields
 		const action_selector_widget = document.getElementById("actionWidget");
@@ -125,16 +126,17 @@
 							action_selector_el.value = data.action;
 							action_selector_widget.style.display = null
 							break;
-							
+
 						case 'PerformToggleAction':
 							toggle_action_selector_el.value = data.action;
 							toggle_action_selector_widget.style.display = null
 							break;
 
 						case 'SetWallpaperAction':
+
 							// Show hidden elements
 							set_wallpaper_action_selector_widget.style.display = null
-							monitor_selector_el.style.display = null
+							monitor_selector_widget.style.display = null
 
 							// Populate list with available wallpapers to choose from
 							data?.wallpapers.forEach(wallpaper => {
@@ -142,7 +144,17 @@
 								option.text = wallpaper;
 								set_wallpaper_action_selector_el.add(option);
 							});
+
+							// Populate list with available monitors to choose from
+							data?.monitors.forEach(monitor => {
+								const option = document.createElement("option");
+								// Get monitor model 
+								option.text = monitor;
+								monitor_selector_el.add(option);
+							});
+
 							set_wallpaper_action_selector_el.value = data.selected_wallpaper;
+							monitor_selector_el.value = data.selected_monitor;
 							break;
 						default:
 							break;
