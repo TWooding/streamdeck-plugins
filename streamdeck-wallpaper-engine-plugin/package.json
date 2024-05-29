@@ -4,6 +4,7 @@
     "@rollup/plugin-commonjs": "^25.0.5",
     "@rollup/plugin-node-resolve": "^15.2.2",
     "@rollup/plugin-typescript": "^11.1.5",
+    "@rollup/plugin-json": "^6.1.0",
     "@tsconfig/node20": "^20.1.2",
     "@types/node": "^20.12.8",
     "rollup": "^4.17.2",
@@ -21,7 +22,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@elgato/streamdeck": "0.4.0-beta.1",
+    "@elgato/streamdeck": "^0.3.0",
     "getsteamfolders": "^1.0.5"
   }
 }

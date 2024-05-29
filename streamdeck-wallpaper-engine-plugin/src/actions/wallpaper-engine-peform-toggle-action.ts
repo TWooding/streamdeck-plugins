@@ -1,12 +1,12 @@
 import { WallpaperEngine } from "../wallpaper_engine";
-import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, JsonValue, SendToPluginEvent, action } from "@elgato/streamdeck";
+import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent,SendToPluginEvent, action } from "@elgato/streamdeck";
 import { exec, } from "child_process";
 
 @action({ UUID: "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-perform-toggle-action", })
 export class WallpaperToggleAction extends SingletonAction<WallpaperToggleActionSettings> {
 
 	wallpaper_engine: WallpaperEngine = new WallpaperEngine()
-	async onSendToPlugin(ev: SendToPluginEvent<JsonValue, WallpaperToggleActionSettings>): Promise<void> {
+	async onSendToPlugin(ev: SendToPluginEvent<Object, WallpaperToggleActionSettings>): Promise<void> {
 
 		if (ev.payload) {
 			const settings = ev.payload as WallpaperToggleActionSettings
