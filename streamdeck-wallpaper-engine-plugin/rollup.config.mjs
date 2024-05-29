@@ -1,6 +1,7 @@
 import commonjs from "@rollup/plugin-commonjs";
 import nodeResolve from "@rollup/plugin-node-resolve";
 import typescript from "@rollup/plugin-typescript";
+import json from "@rollup/plugin-json";
 import copy from 'rollup-plugin-copy';
 import esbuild from 'rollup-plugin-esbuild';
 import path from "node:path";
@@ -39,6 +40,9 @@ const config = {
 				this.addWatchFile('src/index.html');
 			},
 		},
+		json({
+			compact: true
+		}),
 		typescript({
 			mapRoot: isWatching ? "./" : undefined
 		}),
