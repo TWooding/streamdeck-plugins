@@ -3,12 +3,51 @@ import { exec } from 'child_process';
 import { readdir, readdirSync } from 'fs';
 import { getSteamGameLocation, getSteamMainLocation } from 'getsteamfolders';
 import path, { dirname, join } from 'path';
-
 export class WallpaperEngine {
 
 	constructor() {
 	}
 
+	// Returns a list of connected monitors
+	public async get_monitors(): Promise<Array<string>> {
+		let command;
+
+		if (process.platform === 'win32') {
+			// Windows command to list monitors
+			command = 'wmic desktopmonitor get Name';
+		} else {
+			// Wallpaper engine does not support other platforms.
+			command = '';
+		}
+
+		return new Promise<Array<string>>((resolve, reject) => {
+			exec(command, (error, stdout, stderr) => {
+				if (error) {
+					// If there's an error executing the command, reject the Promise with a specific error message
+					reject(new Error("Error executing command: " + error.message));
+				} else {
+
+					// Process the stdout to find the executable path
+					let output = stdout.split('\n')
+					output = output.filter(line => line.trim() !== "")
+
+					// Remove `Name` field from results
+					if (process.platform === 'win32') {
+						output.shift()
+					}
+					if (output.length > 0) {
+						resolve(output)
+					} else {
+						reject(new Error("Cannot detect connected monitors"));
+
+					}
+
+
+				}
+			});
+		});
+
+	}
 
 	public async get_process(): Promise<string> {
 		let command;
