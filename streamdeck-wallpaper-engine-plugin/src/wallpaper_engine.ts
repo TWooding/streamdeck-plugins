@@ -1,8 +1,7 @@
-import streamDeck from '@elgato/streamdeck';
 import { exec } from 'child_process';
-import { readdir, readdirSync } from 'fs';
-import { getSteamGameLocation, getSteamMainLocation } from 'getsteamfolders';
-import path, { dirname, join } from 'path';
+import {  readdirSync } from 'fs';
+import { getSteamMainLocation } from 'getsteamfolders';
+import {  join } from 'path';
 export class WallpaperEngine {
 
 	constructor() {

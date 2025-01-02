@@ -1,5 +1,5 @@
 import { WallpaperEngine } from "../wallpaper_engine";
-import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, SendToPluginEvent, action } from "@elgato/streamdeck";
+import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, SendToPluginEvent, action, JsonObject } from "@elgato/streamdeck";
 import { exec, } from "child_process";
 
 @action({ UUID: "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-perform-action", })
@@ -7,7 +7,7 @@ export class WallpaperAction extends SingletonAction<WallpaperActionSettings> {
 
 	wallpaper_engine: WallpaperEngine = new WallpaperEngine()
 
-	async onSendToPlugin(ev: SendToPluginEvent<Object, WallpaperActionSettings>): Promise<void> {
+	async onSendToPlugin(ev: SendToPluginEvent<JsonObject, WallpaperActionSettings>): Promise<void> {
 
 		if (ev.payload) {
 			const settings = ev.payload as WallpaperActionSettings
@@ -16,7 +16,7 @@ export class WallpaperAction extends SingletonAction<WallpaperActionSettings> {
 	}
 
 	async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<WallpaperActionSettings>): Promise<void> {
-		ev.action.sendToPropertyInspector((await ev.action.getSettings()))
+		streamDeck.ui.current?.sendToPropertyInspector(await ev.action.getSettings())
 	}
 
 

@@ -1,13 +1,14 @@
 import { WallpaperEngine } from "../wallpaper_engine";
-import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, SendToPluginEvent, action } from "@elgato/streamdeck";
+import streamDeck, { KeyDownEvent, SingletonAction, DidReceiveSettingsEvent, PropertyInspectorDidAppearEvent, SendToPluginEvent, action, JsonObject } from "@elgato/streamdeck";
 import { exec, } from "child_process";
 
-@action({ UUID: "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-set-wallpaper", })
+@action({ UUID: "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-set-wallpaper" })
 export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettings> {
 
 	wallpaper_engine: WallpaperEngine = new WallpaperEngine()
 
-	async onSendToPlugin(ev: SendToPluginEvent<Object, WallpaperSetActionSettings>): Promise<void> {
+
+	async onSendToPlugin(ev: SendToPluginEvent<JsonObject, WallpaperSetActionSettings>): Promise<void> {
 
 		if (ev.payload) {
 			const settings = ev.payload as WallpaperSetActionSettings
@@ -16,7 +17,7 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 	}
 
 	async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<WallpaperSetActionSettings>): Promise<void> {
-		ev.action.sendToPropertyInspector((await ev.action.getSettings()))
+		streamDeck.ui.current?.sendToPropertyInspector(await ev.action.getSettings())
 	}
 
 
@@ -31,7 +32,7 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 			settings.monitors = monitors
 
 		})
-		
+
 		settings.selected_monitor = settings.selected_monitor ? settings.selected_monitor : settings.monitors[0]
 		settings.selected_monitor_index = settings.selected_monitor_index ? settings.selected_monitor_index : settings.monitors.indexOf(settings.selected_monitor)
 		settings.selected_wallpaper = settings.selected_wallpaper ? settings.selected_wallpaper : settings.wallpapers[0]
@@ -59,7 +60,7 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 }
 
 /**
- * Settings for {@link WallpaperSwitch}.
+ * Settings for {@link WallpaperSetAction}.
  */
 type WallpaperSetActionSettings = {
 	widget_type: string

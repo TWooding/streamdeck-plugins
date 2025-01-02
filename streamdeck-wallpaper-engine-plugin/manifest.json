@@ -61,7 +61,7 @@
 	"CategoryIcon": "imgs/wallpaperEngineIcon",
 	"CodePath": "bin/plugin.js",
 	"Description": "A Streamdeck plugin to control Wallpaper Engine from the CLI",
-	"Icon": "imgs/wallpaperEngineIcon",
+	"Icon": "imgs/wallpaperEngineIcon_image",
 	"SDKVersion": 2,
 	"Software": {
 		"MinimumVersion": "6.5"
