@@ -140,6 +140,8 @@
 
 							// Populate list with available wallpapers to choose from
 							set_wallpaper_action_selector_el.innerHTML = ""; // Clear previous options
+							monitor_selector_el.innerHTML = ""; // Clear previous options
+							
 							data?.wallpapers.forEach(wallpaper => {
 								const option = document.createElement("option");
 								option.text = wallpaper.name;
