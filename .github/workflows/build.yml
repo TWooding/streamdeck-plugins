@@ -34,7 +34,7 @@ jobs:
 
     - name: Install plugin dependencies
       working-directory: ${{ matrix.plugin }}
-      run: npm ci
+      run: npm install
       
     - name: Build plugin
       working-directory: ${{ matrix.plugin }}
