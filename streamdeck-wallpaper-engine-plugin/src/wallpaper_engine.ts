@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
-import {  readdirSync } from 'fs';
+import { readdirSync, existsSync } from 'fs';
 import { getSteamMainLocation } from 'getsteamfolders';
-import {  join } from 'path';
+import { join } from 'path';
 export class WallpaperEngine {
 
 	constructor() {
@@ -106,18 +106,25 @@ export class WallpaperEngine {
 					// Wallpaper Paths
 					paths = [`${loc}/steamapps/common/wallpaper_engine/projects/defaultprojects`, `${loc}/steamapps/common/wallpaper_engine/projects/myprojects`, `${loc}/steamapps/workshop/content/431960`]
 
-					// Parse Wallpapers
-					paths.forEach(p => {
-						const files = readdirSync(p)
-						files.forEach(file => {
-							wallpapers.push(join(p, file))
+					// Filter to only include valid paths
+					const validPaths = paths.filter(p => existsSync(p));
 
+					// Parse Wallpapers from valid paths only
+					validPaths.forEach(p => {
+						const files = readdirSync(p);
+						files.forEach(file => {
+							wallpapers.push(join(p, file));
 						});
 					});
+					
+					resolve(wallpapers);
+				} else {
+					resolve([]); // Return empty array if Steam location not found
 				}
-			})
-			resolve(wallpapers)
-		})
-
+			}).catch(error => {
+				console.error("Error finding Steam location:", error);
+				resolve([]); // Return empty array on error
+			});
+		});
 	}
 }
