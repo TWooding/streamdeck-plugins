@@ -16,29 +16,40 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 		}
 	}
 
-	async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<WallpaperSetActionSettings>): Promise<void> {
-		streamDeck.ui.current?.sendToPropertyInspector(await ev.action.getSettings())
-	}
+async onPropertyInspectorDidAppear(ev: PropertyInspectorDidAppearEvent<WallpaperSetActionSettings>): Promise<void> {
+	streamDeck.ui.current?.sendToPropertyInspector(await ev.action.getSettings());
+}
 
+async onDidReceiveSettings(ev: DidReceiveSettingsEvent<WallpaperSetActionSettings>): Promise<void> {
+	const settings = ev.payload.settings;
+	settings.widget_type = settings.widget_type ? settings.widget_type : 'SetWallpaperAction';
 
-	async onDidReceiveSettings(ev: DidReceiveSettingsEvent<WallpaperSetActionSettings>): Promise<void> {
-		const settings = ev.payload.settings
-		settings.widget_type = settings.widget_type ? settings.widget_type : 'SetWallpaperAction'
-		await this.wallpaper_engine.get_wallpapers().then(wallpapers => {
-			settings.wallpapers = wallpapers
+	// Get wallpapers as paths
+	const wallpaperPaths = await this.wallpaper_engine.get_wallpapers();
+	// Map to array of { name, path }
+	const wallpapers = wallpaperPaths.map(path => ({
+		name: this.extractNameFromPath(path),
+		path
+	}));
+	settings.wallpapers = wallpapers;
 
-		})
-		await this.wallpaper_engine.get_monitors().then(monitors => {
-			settings.monitors = monitors
+	// Get monitors
+	settings.monitors = await this.wallpaper_engine.get_monitors();
 
-		})
+	// Set defaults if not set
+	settings.selected_monitor = settings.selected_monitor ? settings.selected_monitor : settings.monitors[0];
+	settings.selected_monitor_index = settings.selected_monitor_index ? settings.selected_monitor_index : settings.monitors.indexOf(settings.selected_monitor);
+	settings.selected_wallpaper = settings.selected_wallpaper ? settings.selected_wallpaper : (wallpapers[0]?.path || "");
 
-		settings.selected_monitor = settings.selected_monitor ? settings.selected_monitor : settings.monitors[0]
-		settings.selected_monitor_index = settings.selected_monitor_index ? settings.selected_monitor_index : settings.monitors.indexOf(settings.selected_monitor)
-		settings.selected_wallpaper = settings.selected_wallpaper ? settings.selected_wallpaper : settings.wallpapers[0]
+	ev.action.setSettings(settings);
+}
 
-		ev.action.setSettings(settings)
-	}
+// Helper to extract wallpaper name from path
+private extractNameFromPath(path: string): string {
+	// Remove trailing slash if present, then get last segment
+	const parts = path.replace(/[\\/]+$/, '').split(/[\\/]/);
+	return parts[parts.length - 1];
+}
 
 	async onKeyDown(ev: KeyDownEvent<WallpaperSetActionSettings>): Promise<void> {
 		this.wallpaper_engine.get_process()
@@ -63,10 +74,10 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
  * Settings for {@link WallpaperSetAction}.
  */
 type WallpaperSetActionSettings = {
-	widget_type: string
-	selected_wallpaper: string
-	selected_monitor: string
-	selected_monitor_index: number
-	wallpapers: string[]
-	monitors: Array<string>
+	widget_type: string;
+	selected_wallpaper: string;
+	selected_monitor: string;
+	selected_monitor_index: number;
+	wallpapers: Array<{ name: string; path: string }>;
+	monitors: Array<string>;
 };

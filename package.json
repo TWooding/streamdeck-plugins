@@ -1,0 +1,7 @@
+{
+    "scripts": {
+      "build": "rollup -c",
+      "dist": "rollup -c && streamdeck bundle -f com.twooding.github-streamdeck-wallpaper-engine-plugin.sdPlugin",
+      "clean": "rm -r *.sdPlugin || rm *.streamDeckPlugin"
+    }
+  }
