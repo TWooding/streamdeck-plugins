@@ -1,0 +1,52 @@
+name: Build Stream Deck Plugins
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:  
+
+jobs:
+  build:
+    runs-on: windows-latest 
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: [
+          'streamdeck-wallpaper-engine-plugin'
+          # Future plugins will be added here
+        ]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install global dependencies
+      run: npm install -g @elgato/cli rollup
+
+    - name: Install plugin dependencies
+      working-directory: ${{ matrix.plugin }}
+      run: npm ci
+      
+    - name: Build plugin
+      working-directory: ${{ matrix.plugin }}
+      run: npm run build
+      
+    - name: Package plugin
+      working-directory: ${{ matrix.plugin }}
+      run: npm run dist
+      
+    - name: Upload built plugin
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.plugin }}
+        path: ${{ matrix.plugin }}/*.streamDeckPlugin
+        if-no-files-found: error
