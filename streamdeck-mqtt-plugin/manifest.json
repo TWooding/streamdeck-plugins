@@ -1,0 +1,47 @@
+{
+	"Name": "MQTT Plugin",
+	"Version": "0.1.0.0",
+	"Author": "TWooding",
+	"Actions": [
+		{
+			"Name": "MQTT Publish",
+			"UUID": "com.twooding.streamdeck-mqtt-plugin.mqttpublish",
+			"Icon": "imgs/mqtt-logo",
+			"Tooltip": "Publish a message to a configured MQTT broker.",
+			"PropertyInspectorPath": "ui/mqtt-publish.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"States": [
+				{
+					"Image": "imgs/mqtt-logo",
+					"TitleAlignment": "middle"
+				}
+			]
+		}
+	],
+	"Category": "MQTT Plugin",
+	"CategoryIcon": "imgs/mqtt-logo",
+	"CodePath": "bin/plugin.js",
+	"Description": "MQTT Client Plugin for the Streamdeck",
+	"Icon": "imgs/mqtt-logo",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "6.9"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.twooding.streamdeck-mqtt-plugin"
+}

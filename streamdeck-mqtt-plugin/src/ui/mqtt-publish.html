@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
+    <title>MQTT Publish Settings</title>
+    <link rel="stylesheet" href="../css/sdpi.css">
+</head>
+
+<body>
+    <div class="sdpi-wrapper">
+        <div class="sdpi-heading">MQTT Publish Settings</div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Broker URL</div>
+            <input class="sdpi-item-value" id="brokerUrl" type="url" placeholder="mqtt://broker.local:1883" onchange="updateSetting('brokerUrl', this.value)">
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">MQTT Version</div>
+            <select class="sdpi-item-value" id="mqttVersion" onchange="updateSetting('mqttVersion', this.value)">
+                <option value="3">3.1.1</option>
+                <option value="3-legacy">3.1 (Legacy)</option>
+                <option value="5">5.0</option>
+            </select>
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Client ID</div>
+            <input class="sdpi-item-value" id="clientId" type="text" placeholder="Auto-generated" onchange="updateSetting('clientId', this.value)">
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Username</div>
+            <input class="sdpi-item-value" id="username" type="text" placeholder="Optional" onchange="updateSetting('username', this.value)">
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Password</div>
+            <input class="sdpi-item-value" id="password" type="password" placeholder="Optional" onchange="updateSetting('password', this.value)">
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Reconnect Period (ms)</div>
+            <input class="sdpi-item-value" id="reconnectPeriod" type="number" min="0" placeholder="0" onchange="updateSetting('reconnectPeriod', Number(this.value))">
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Topic</div>
+            <input class="sdpi-item-value" id="topic" type="text" placeholder="topic/name" onchange="updateSetting('topic', this.value)">
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">Payload</div>
+            <input class="sdpi-item-value" id="payload" type="text" placeholder="message payload" onchange="updateSetting('payload', this.value)">
+        </div>
+
+        <div class="sdpi-item">
+            <div class="sdpi-item-label">QoS</div>
+            <select class="sdpi-item-value" id="qos" onchange="updateSetting('qos', Number(this.value))">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select>
+        </div>
+
+        <div class="sdpi-item" type="checkbox">
+            <div class="sdpi-item-label">Retain</div>
+            <div class="sdpi-item-value">
+                <input id="retain" type="checkbox" onchange="updateSetting('retain', this.checked)">
+                <label for="retain"><span></span></label>
+            </div>
+        </div>
+
+        <div class="sdpi-item" type="checkbox">
+            <div class="sdpi-item-label">Auto Connect</div>
+            <div class="sdpi-item-value">
+                <input id="autoConnect" type="checkbox" onchange="updateSetting('autoConnect', this.checked)">
+                <label for="autoConnect"><span></span></label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let websocket = null;
+        let uuid = null;
+        let actionInfo = {};
+        let currentSettings = {};
+
+        function setControlValue(el, value) {
+            if (!el) {
+                return;
+            }
+            if (el.type === 'checkbox') {
+                el.checked = !!value;
+                return;
+            }
+            el.value = value ?? '';
+        }
+
+        function applySettings(settings) {
+            if (!settings || typeof settings !== 'object') {
+                return;
+            }
+
+            currentSettings = { ...settings };
+
+            setControlValue(document.getElementById('brokerUrl'), settings.brokerUrl);
+            setControlValue(document.getElementById('mqttVersion'), settings.mqttVersion ?? '3');
+            setControlValue(document.getElementById('clientId'), settings.clientId);
+            setControlValue(document.getElementById('username'), settings.username);
+            setControlValue(document.getElementById('password'), settings.password);
+            setControlValue(document.getElementById('reconnectPeriod'), settings.reconnectPeriod ?? 0);
+            setControlValue(document.getElementById('topic'), settings.topic);
+            setControlValue(document.getElementById('payload'), settings.payload);
+            setControlValue(document.getElementById('qos'), settings.qos ?? 0);
+            setControlValue(document.getElementById('retain'), settings.retain ?? false);
+            setControlValue(document.getElementById('autoConnect'), settings.autoConnect ?? false);
+        }
+
+        function updateSetting(key, value) {
+            if (!websocket) {
+                return;
+            }
+
+            currentSettings = {
+                ...currentSettings,
+                [key]: value,
+            };
+
+            // setSettings persists directly via Stream Deck; no plugin roundtrip needed
+            websocket.send(JSON.stringify({
+                event: 'setSettings',
+                context: uuid,
+                payload: currentSettings
+            }));
+        }
+
+        function extractSettings(jsonData) {
+            if (!jsonData.payload) {
+                return null;
+            }
+            return jsonData.payload.settings ?? jsonData.payload;
+        }
+
+        function connectElgatoStreamDeckSocket(inPort, inUUID, inRegisterEvent, inInfo, inActionInfo) {
+            uuid = inUUID;
+            actionInfo = JSON.parse(inActionInfo || '{}');
+            websocket = new WebSocket('ws://localhost:' + inPort);
+
+            const initial = extractSettings(actionInfo);
+            if (initial) {
+                applySettings(initial);
+            }
+
+            websocket.onopen = function () {
+                const json = {
+                    event: inRegisterEvent,
+                    uuid: inUUID
+                };
+                websocket.send(JSON.stringify(json));
+            };
+
+            websocket.onmessage = function (evt) {
+                const jsonData = JSON.parse(evt.data);
+                const settings = extractSettings(jsonData);
+                applySettings(settings);
+            };
+        }
+    </script>
+</body>
+
+</html>

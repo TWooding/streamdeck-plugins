@@ -8,3 +8,8 @@ package-lock.json
 
 # VSCode dotfiles
 .vscode
+.github/agents
+.github/skills
+
+# Bun package-json
+package-json.lock
