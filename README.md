@@ -6,7 +6,7 @@ This repository is a central hub for the development of various Streamdeck plugi
 
 The following plugins are available:
 - [Wallpaper Engine Streamdeck Plugin](https://github.com/TWooding/streamdeck-plugins/tree/main/streamdeck-wallpaper-engine-plugin) 
-
+- [MQTT Streamdeck Plugin](https://github.com/TWooding/streamdeck-plugins/tree/main/streamdeck-mqtt-plugin) 
 
 ## Development Status
 
