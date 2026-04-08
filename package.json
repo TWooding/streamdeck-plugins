@@ -1,7 +1,7 @@
 {
     "scripts": {
-        "build": "rollup -c",
-        "dist": "rollup -c && streamdeck bundle -f com.twooding.github-streamdeck-wallpaper-engine-plugin.sdPlugin  && streamdeck bundle -f com.twooding.github-streamdeck-mqtt-plugin.sdPlugin",
+        "build": "node ./scripts/plugins.js build",
+        "dist": "node ./scripts/plugins.js dist",
         "clean": "rm -r *.sdPlugin || rm *.streamDeckPlugin"
     }
 }

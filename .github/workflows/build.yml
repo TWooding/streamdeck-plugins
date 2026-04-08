@@ -9,44 +9,42 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest 
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        plugin: [
-          'streamdeck-wallpaper-engine-plugin'
-          # Future plugins will be added here
-        ]
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        # Disable npm cache since we're in a monorepo
-        
+        cache: 'npm'
+
     - name: Install global dependencies
       run: npm install -g @elgato/cli rollup
 
-    - name: Install plugin dependencies
-      working-directory: ${{ matrix.plugin }}
-      run: npm install
-      
-    - name: Build plugin
-      working-directory: ${{ matrix.plugin }}
-      run: npm run build
-      
-    - name: Package plugin
-      working-directory: ${{ matrix.plugin }}
+    - name: Install plugin dependencies (all plugins)
+      run: |
+        set -e
+        for d in */; do
+          basename=${d%/}
+          if [[ "$basename" == *plugin ]]; then
+            echo "Installing in $basename"
+            (cd "$basename" && npm install)
+          fi
+        done
+      shell: bash
+
+    - name: Build and package all plugins
       run: npm run dist
-      
-    - name: Upload built plugin
+
+    - name: Upload built artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.plugin }}
-        path: ${{ matrix.plugin }}/*.streamDeckPlugin
+        name: streamdeck-plugins
+        path: |
+          sdplugins/**
+          *.streamDeckPlugin
+          **/*.streamDeckPlugin
         if-no-files-found: error
