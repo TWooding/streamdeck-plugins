@@ -1,4 +1,5 @@
 import mqtt, { MqttClient } from "mqtt";
+import { EventEmitter } from "events";
 
 export type MqttConnectOptions = {
     url: string;
@@ -11,11 +12,27 @@ export type MqttConnectOptions = {
     [k: string]: any;
 };
 
-export class MqttService {
+export class MqttService extends EventEmitter {
     private client: MqttClient | null = null;
     private connectedUrl: string | null = null;
+    private messageCache: Map<string, Buffer> = new Map();
+    private connectPromise: Promise<any> | null = null;
+
+    getCachedMessage(topic: string): Buffer | undefined {
+        return this.messageCache.get(topic);
+    }
 
     async connect(opts: MqttConnectOptions): Promise<any> {
+        // If already connected, do not reconnect.
+        if (this.client && this.client.connected) {
+            return Promise.resolve();
+        }
+
+        // If a connection is currently being established, wait for it instead of spanning multiple clients
+        if (this.connectPromise) {
+            return this.connectPromise;
+        }
+
         const { url, mqttVersion, clientId, username, password, reconnectPeriod, ...rest } = opts;
 
         const connectOptions: any = {
@@ -48,12 +65,21 @@ export class MqttService {
 
         this.client = mqtt.connect(url, connectOptions);
 
-        return new Promise((resolve, reject) => {
-            if (!this.client) return reject(new Error("mqtt.connect failed"));
+        this.client.on("message", (topic, message, packet) => {
+            this.messageCache.set(topic, message);
+            this.emit("message", topic, message, packet);
+        });
+
+        this.connectPromise = new Promise((resolve, reject) => {
+            if (!this.client) {
+                this.connectPromise = null;
+                return reject(new Error("mqtt.connect failed"));
+            }
 
             const timeoutMs = opts.connectTimeout ?? 5000;
             const timeout = setTimeout(() => {
                 cleanup();
+                this.connectPromise = null;
                 this.client?.end(true, {}, () => {
                     this.connectedUrl = null;
                 });
@@ -64,15 +90,17 @@ export class MqttService {
                 clearTimeout(timeout);
                 // track which URL we're connected to and clear on close/end
                 this.connectedUrl = url;
-                this.client?.on("close", () => { this.connectedUrl = null; });
-                this.client?.on("end", () => { this.connectedUrl = null; });
+                this.client?.on("close", () => { this.connectedUrl = null; this.connectPromise = null; });
+                this.client?.on("end", () => { this.connectedUrl = null; this.connectPromise = null; });
                 cleanup();
+                this.connectPromise = null;
                 resolve(connack);
             };
 
             const onError = (err: Error) => {
                 clearTimeout(timeout);
                 cleanup();
+                this.connectPromise = null;
                 reject(err);
             };
 
@@ -85,6 +113,8 @@ export class MqttService {
             this.client.on("connect", onConnect as any);
             this.client.on("error", onError as any);
         });
+
+        return this.connectPromise;
     }
 
     isConnected(): boolean {
@@ -115,10 +145,6 @@ export class MqttService {
         return new Promise((resolve, reject) => {
             this.client!.subscribe(topic as any, options || {}, (err, granted) => (err ? reject(err) : resolve(granted)));
         });
-    }
-
-    on(event: string, handler: (...args: any[]) => void): void {
-        this.client?.on(event as any, handler as any);
     }
 
     async end(force?: boolean): Promise<void> {

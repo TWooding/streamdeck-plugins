@@ -3,6 +3,26 @@
 	"Version": "0.1.0.0",
 	"Author": "TWooding",
 	"Actions": [
+				{
+						"Name": "MQTT Toggle",
+						"UUID": "com.twooding.streamdeck-mqtt-plugin.mqtttoggle",
+						"Icon": "imgs/mqtt-logo",
+						"Tooltip": "Publish a toggle payload and listen to state changes via MQTT.",
+						"PropertyInspectorPath": "ui/mqtt-toggle.html",
+						"Controllers": [
+								"Keypad"
+						],
+						"States": [
+								{
+										"Image": "imgs/mqtt-logo",
+										"TitleAlignment": "middle"
+								},
+								{
+										"Image": "imgs/mqtt-logo",
+										"TitleAlignment": "middle"
+								}
+						]
+				},
 		{
 			"Name": "MQTT Publish",
 			"UUID": "com.twooding.streamdeck-mqtt-plugin.mqttpublish",
