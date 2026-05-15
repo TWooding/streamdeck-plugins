@@ -25,6 +25,9 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 			streamDeck.logger.info(`${settings.monitors}`);
 			await ev.action.setSettings(settings)
 
+			if (settings.selected_wallpaper) {
+				await this.updateThumbnail(ev.action, settings.selected_wallpaper);
+			}
 		}
 	}
 
@@ -53,7 +56,37 @@ export class SetWallpaperAction extends SingletonAction<WallpaperSetActionSettin
 		settings.selected_monitor_index = settings.selected_monitor_index ? settings.selected_monitor_index : settings.monitors.indexOf(settings.selected_monitor);
 		settings.selected_wallpaper = settings.selected_wallpaper ? settings.selected_wallpaper : (wallpapers[0]?.path || "");
 
-		ev.action.setSettings(settings);
+		await ev.action.setSettings(settings);
+
+		if (settings.selected_wallpaper) {
+			await this.updateThumbnail(ev.action, settings.selected_wallpaper);
+		}
+	}
+
+	async onWillAppear(ev: WillAppearEvent<WallpaperSetActionSettings>): Promise<void> {
+		if (ev.payload.settings.selected_wallpaper) {
+			await this.updateThumbnail(ev.action, ev.payload.settings.selected_wallpaper);
+		}
+	}
+
+	private async updateThumbnail(action: any, wallpaperPath: string): Promise<void> {
+		if (wallpaperPath) {
+			const previewPath = join(wallpaperPath, 'preview.jpg');
+			if (existsSync(previewPath)) {
+				try {
+					const data = readFileSync(previewPath);
+					const base64Image = data.toString('base64');
+					const imageUri = `data:image/jpeg;base64,${base64Image}`;
+					await action.setImage(imageUri);
+				} catch (error: any) {
+					await action.setImage(); // Fallback to default
+				}
+			} else {
+				await action.setImage(); // Fallback to default
+			}
+		} else {
+			await action.setImage(); // Fallback to default
+		}
 	}
 
 	// Helper to extract wallpaper name from path
