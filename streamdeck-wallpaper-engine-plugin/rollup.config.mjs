@@ -54,7 +54,7 @@ const config = {
 		commonjs(),
 		esbuild({
 			minify: true,
-			target: 'es2015', // default, or 'es20XX', 'esnext'
+			target: 'es2020', // default, or 'es20XX', 'esnext'
 			jsx: 'preserve', // default, or 'preserve'
 		}),
 		{

@@ -9,10 +9,11 @@
     "devDependencies": {
         "@elgato/cli": "^1.7.3",
         "@rollup/plugin-commonjs": "^28.0.9",
+        "@rollup/plugin-json": "^6.1.0",
         "@rollup/plugin-node-resolve": "^15.3.1",
         "@rollup/plugin-typescript": "^12.3.0",
-        "@rollup/plugin-json": "^6.1.0",
         "@tsconfig/node20": "^20.1.9",
+        "@types/minimatch": "^5.1.2",
         "@types/node": "^22.19.17",
         "rollup": "^4.60.1",
         "rollup-plugin-copy": "^3.5.0",

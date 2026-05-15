@@ -16,6 +16,12 @@ const sdPlugin = "com.twooding.streamdeck-mqtt-plugin.sdPlugin";
 const config = {
 	input: "src/plugin.ts",
 
+	onwarn: (warning, warn) => {
+		if (warning.code === 'THIS_IS_UNDEFINED') return;
+		if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+		warn(warning);
+	},
+
 	output: {
 		format: 'esm',
 		file: `${sdPlugin}/bin/plugin.js`,
@@ -55,7 +61,7 @@ const config = {
 		commonjs(),
 		esbuild({
 			minify: true,
-			target: 'es2015', // default, or 'es20XX', 'esnext'
+			target: 'es2020', // default, or 'es20XX', 'esnext'
 			jsx: 'preserve', // default, or 'preserve'
 		}),
 		{
