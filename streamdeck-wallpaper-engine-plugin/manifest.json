@@ -1,6 +1,6 @@
 {
 	"Name": "Wallpaper Engine Plugin",
-	"Version": "0.1.0.2",
+	"Version": "0.1.0.3",
 	"Author": "TWooding",
 	"PropertyInspectorPath": "index.html",
 	"Actions": [
@@ -8,7 +8,7 @@
 			"Name": "Perform Action",
 			"UUID": "com.twooding.github-streamdeck-wallpaper-engine-plugin.wallpaper-engine-perform-action",
 			"Icon": "imgs/wallpaperEngineIcon",
-			"Tooltip": "Communicates with Wallpaper Engine via the CLI to peform an Action",
+			"Tooltip": "Communicates with Wallpaper Engine via the CLI to perform an Action",
 			"Controllers": [
 				"Keypad"
 			],
